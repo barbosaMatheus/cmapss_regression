@@ -1,6 +1,6 @@
 **Notebook Summary**
 \
-The CMAPSS datasets have simulated data from various different engines, which mimic the behavior from normal operation up until failure. There are 3 operational settings (OS1-3), 21 sensors and the time column (cycles). The unit column is simply the unit (engine) number. This notebook focuses on pre-processingm, analyzing, modelling and predicting on the first CMAPSS dataset (FD001). The ultimate goal is to be able to predict how many cycles each engine will run before it experiences failure, which is known as Remaining Useful Life (RUL).
+The CMAPSS datasets have simulated data from various different engines, which mimic the behavior from normal operation up until failure. There are 3 operational settings (OS1-3), 21 sensors and the time column (cycles). The unit column is simply the unit (engine) number. This notebook focuses on pre-processing, analyzing, modelling and predicting on the first CMAPSS dataset (FD001). The ultimate goal is to be able to predict how many cycles each engine will run before it experiences failure, which is known as Remaining Useful Life (RUL).
 
 **Dataset: FD001**
 * Train set engines: 100

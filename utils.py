@@ -1,7 +1,40 @@
 from matplotlib import pyplot as plt
 from scipy import stats
-from scipy.signal import medfilt
 import numpy as np
+import pandas as pd
+from statsmodels.graphics.tsaplots import plot_acf
+
+def forceodd(i: int, plus=True):
+    if i % 2 == 0:
+        if plus:
+            return i+1
+        else:
+            return i-1
+    else:
+        return i
+
+def medfilt(x: np.array, kernelsize: int):
+    if kernelsize < 3:
+        return x
+    kernelsize = forceodd(kernelsize)
+    
+    # Pad the input array with edge values to handle borders
+    pad = kernelsize // 2
+    if x.shape[0] < kernelsize:
+        diff = kernelsize - x.shape[0]
+        pad += ((diff // 2)+1)
+    xpad = np.pad(x, (pad, pad), mode='edge')
+    
+    xfilt = []
+    
+    # Slide the window over the input array
+    for i in range(len(x)):
+        # Extract the window of values
+        window = xpad[i:i + kernelsize]
+        # Compute the median of the window and append to the result
+        xfilt.append(np.median(window))
+    
+    return np.array(xfilt)
 
 def hist_prob_plots(df, col):
     # function to plot a histogram and a Q-Q plot
@@ -19,7 +52,7 @@ def find_best_kernel(df, col, ref):
     for k in kernel_sizes:
         data = df.copy()
         if k > 0:
-            data.loc[:,col] = medfilt(data[col].to_numpy(), kernel_size=k)
+            data.loc[:,col] = medfilt(data[col].to_numpy(), kernelsize=k)
         corr = abs(data.corr()[ref][col])
         res.append((k,corr))
     res = sorted(res, key=lambda x: -x[1])
@@ -58,3 +91,31 @@ def find_best_dt(df, col, target):
     res = sorted(res, key=lambda x: -x[1])
     print(f"{col} best dt: {res[0]}")
     return res[0][0]
+
+def graph_ts(df, cols):
+    plots = len(cols)
+    for i in range(1, plots+1):
+        plt.subplot(plots,1,i)
+        plt.ylabel(cols[i-1])
+        plt.plot(df.index.to_pydatetime(), df[cols[i-1]].values)
+    plt.tight_layout()
+    plt.show()
+
+def acf_plot(df, col):
+    plot_acf(df[col])
+    plt.xlabel('Lag')
+    plt.ylabel('ACF')
+    plt.show()
+
+def plot_diff_smooth(df, col, window):
+    plt.subplot(2,1,1)
+    plt.plot(df[col], label=col, color="gray", alpha=0.75)
+    plt.plot(df[col].rolling(window=window).mean(), 
+             linestyle="--", color="green", 
+             label="Smoothed")
+    plt.legend()
+    plt.ylabel(col)
+    plt.subplot(2,1,2)
+    plt.plot(df[col].diff())
+    plt.ylabel("Difference")
+    plt.show()
